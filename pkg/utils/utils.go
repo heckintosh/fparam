@@ -125,3 +125,18 @@ func IsEqual(a1 []string, a2 []string) bool {
 	}
 	return true
 }
+
+func ExtractJs(resp_str string) []string {
+	r1 := regexp.MustCompile(regexp.QuoteMeta(`(?i)<script[> ]`))
+	r2 := regexp.MustCompile(regexp.QuoteMeta(`(?i)</script>`))
+	split := r1.Split(resp_str, -1)
+	scripts := []string{}
+	var actual_parts []string
+	for _, part := range split {
+		actual_parts = r2.Split(part, 2)
+		if len(actual_parts) > 1 {
+			scripts = append(scripts, actual_parts[0])
+		}
+	}
+	return scripts
+}
