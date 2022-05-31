@@ -21,13 +21,9 @@ func TestRequester(t *testing.T) {
 	payloads := map[string]string{
 		"url": "test",
 	}
-	got, _ := Requester(sampleRequest, payloads)
-	got_body := got.Body
+	resp, _ := Requester(sampleRequest, payloads)
+	body_str := utils.GetRespBodyStr(resp)
 
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(got_body)
-
-	got_str := buf.String()
-	count := strings.Count(got_str, "\n")
+	count := strings.Count(body_str, "\n")
 	fmt.Printf("Count: %v\n", count)
 }

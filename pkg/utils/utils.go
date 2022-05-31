@@ -1,14 +1,18 @@
 package utils
 
 import (
-	log "github.com/sirupsen/logrus"
+	"bufio"
+	"bytes"
 	"math/rand"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"sort"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type RequestPrep struct {
@@ -139,4 +143,35 @@ func ExtractJs(resp_str string) []string {
 		}
 	}
 	return scripts
+}
+
+func Contains(str string, list []string) bool {
+	for _, s := range list {
+		if str == s {
+			return true
+		}
+	}
+	return false
+}
+
+func GetRespBodyStr(resp *http.Response) string {
+	body := resp.Body
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(body)
+	return buf.String()
+}
+
+func GetWordList(filepath string) []string {
+	file, err := os.Open(filepath)
+	var words []string
+	if err != nil {
+		log.Fatal(err)
+	}
+	Scanner := bufio.NewScanner(file)
+	Scanner.Split(bufio.ScanWords)
+
+	for Scanner.Scan() {
+		words = append(words, Scanner.Text())
+	}
+	return words
 }
