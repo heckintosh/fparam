@@ -1,11 +1,6 @@
 package utils
 
 import (
-<<<<<<< HEAD
-	"bufio"
-	"bytes"
-=======
->>>>>>> 96255ca8edfa16c139935a76b0dcc9ef6a090a43
 	"math/rand"
 	"net"
 	"net/http"
@@ -135,11 +130,12 @@ func IsEqual(a1 []string, a2 []string) bool {
 	return true
 }
 
-func extract_headers(headers string) map[string]string {
+func Extract_headers(headers string) map[string]string {
 	tmp := strings.ReplaceAll(headers, "\\n", "\n")
 	return parse_headers(tmp)
 }
-func parse_headers(header string) map[string]string {
+
+func Parse_headers(header string) map[string]string {
 	//Remove spaces,tab and return [] string
 	res := strings.Fields(header)
 
@@ -153,7 +149,7 @@ func parse_headers(header string) map[string]string {
 	return result
 }
 
-func populate(array []string) map[string]string {
+func Populate(array []string) map[string]string {
 	//converts a list of params into param and value pair
 	result := make(map[string]string)
 	for i := range array {
@@ -161,7 +157,8 @@ func populate(array []string) map[string]string {
 	}
 	return result
 }
-func diff_map(body_1 string, body_2 string) []string {
+
+func Diff_map(body_1 string, body_2 string) []string {
 	var sig []string
 	line_1 := strings.Split(body_1, "\n")
 	line_2 := strings.Split(body_2, "\n")
@@ -171,7 +168,7 @@ func diff_map(body_1 string, body_2 string) []string {
 		}
 	}
 	return sig
-	
+
 func ExtractJs(resp_str string) []string {
 	r1 := regexp.MustCompile(regexp.QuoteMeta(`(?i)<script[> ]`))
 	r2 := regexp.MustCompile(regexp.QuoteMeta(`(?i)</script>`))
