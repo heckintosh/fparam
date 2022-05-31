@@ -1,14 +1,17 @@
 package utils
 
 import (
-	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"net"
 	"net/http"
 	"net/url"
 	"regexp"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type RequestPrep struct {
@@ -126,6 +129,44 @@ func IsEqual(a1 []string, a2 []string) bool {
 	return true
 }
 
+<<<<<<< HEAD
+func extract_headers(headers string) map[string]string {
+	tmp := strings.ReplaceAll(headers, "\\n", "\n")
+	return parse_headers(tmp)
+}
+func parse_headers(header string) map[string]string {
+	//Remove spaces,tab and return [] string
+	res := strings.Fields(header)
+
+	result := make(map[string]string)
+	for i := range res {
+		if (len(res[i])) > 1 {
+			splitted := strings.Split(res[i], ":")
+			result[splitted[0]] = splitted[1]
+		}
+	}
+	return result
+}
+
+func populate(array []string) map[string]string {
+	//converts a list of params into param and value pair
+	result := make(map[string]string)
+	for i := range array {
+		result[array[i]] = strings.Repeat("1", 6-len(strconv.Itoa(i))) + strconv.Itoa(i)
+	}
+	return result
+}
+func diff_map(body_1 string, body_2 string) []string {
+	var sig []string
+	line_1 := strings.Split(body_1, "\n")
+	line_2 := strings.Split(body_2, "\n")
+	for i := range line_1 {
+		if line_1[i] == line_2[i] {
+			sig = append(sig, line_1[i])
+		}
+	}
+	return sig
+=======
 func ExtractJs(resp_str string) []string {
 	r1 := regexp.MustCompile(regexp.QuoteMeta(`(?i)<script[> ]`))
 	r2 := regexp.MustCompile(regexp.QuoteMeta(`(?i)</script>`))
@@ -139,4 +180,5 @@ func ExtractJs(resp_str string) []string {
 		}
 	}
 	return scripts
+>>>>>>> 5b97706a3d324d98f0d25f420d016e29c0047bd2
 }
