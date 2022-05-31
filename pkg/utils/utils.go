@@ -129,6 +129,7 @@ func IsEqual(a1 []string, a2 []string) bool {
 	return true
 }
 
+<<<<<<< HEAD
 func extract_headers(headers string) map[string]string {
 	tmp := strings.ReplaceAll(headers, "\\n", "\n")
 	return parse_headers(tmp)
@@ -165,4 +166,19 @@ func diff_map(body_1 string, body_2 string) []string {
 		}
 	}
 	return sig
+=======
+func ExtractJs(resp_str string) []string {
+	r1 := regexp.MustCompile(regexp.QuoteMeta(`(?i)<script[> ]`))
+	r2 := regexp.MustCompile(regexp.QuoteMeta(`(?i)</script>`))
+	split := r1.Split(resp_str, -1)
+	scripts := []string{}
+	var actual_parts []string
+	for _, part := range split {
+		actual_parts = r2.Split(part, 2)
+		if len(actual_parts) > 1 {
+			scripts = append(scripts, actual_parts[0])
+		}
+	}
+	return scripts
+>>>>>>> 5b97706a3d324d98f0d25f420d016e29c0047bd2
 }

@@ -1,43 +1,55 @@
-def define(response_1, response_2, param, value, wordlist):
+import re
+
+from arjun.core.utils import extract_js
+
+re_not_junk = re.compile(r'^[A-Za-z0-9_]+$')
+def is_not_junk(param):
+    return (re_not_junk.match(param) is not None)
+
+# TODO: for map keys, javascript tolerates { param: "value" }
+re_input_names = re.compile(r'''(?i)<input.+?name=["']?([^"'\s>]+)''')
+re_input_ids = re.compile(r'''(?i)<input.+?id=["']?([^"'\s>]+)''')
+re_empty_vars = re.compile(r'''(?:[;\n]|\bvar|\blet)(\w+)\s*=\s*(?:['"`]{1,2}|true|false|null)''')
+re_map_keys = re.compile(r'''['"](\w+?)['"]\s*:\s*['"`]''')
+def heuristic(response, wordlist):
+    potential_params = []
+
+    # Parse Inputs
+    input_names = re_input_names.findall(response)
+    potential_params += input_names
+
+    input_ids = re_input_ids.findall(response)
+    potential_params += input_ids
+
+    # Parse Scripts
+    for script in extract_js(response):
+        empty_vars = re_empty_vars.findall(script)
+        potential_params += empty_vars
+
+        map_keys = re_map_keys.findall(script)
+        potential_params += map_keys
+
+    if len(potential_params) == 0:
+        return []
+
+    found = set()
+    for word in potential_params:
+        if is_not_junk(word) and (word not in found):
+            found.add(word)
+
+            if word in wordlist:
+                wordlist.remove(word)
+            wordlist.insert(0, word)
+
+    return list(found)
+
+def extract_js(response):
     """
-    defines a rule list for detecting anomalies by comparing two HTTP response
-    returns dict
+    extracts javascript from a given string
     """
-    factors = {
-        'same_code': False, # if http status code is same, contains that code
-        'same_body': False, # if http body is same, contains that body
-        'same_plaintext': False, # if http body isn't same but is same after removing html, contains that non-html text
-        'lines_num': False, # if number of lines in http body is same, contains that number
-        'lines_diff': False, # if http-body or plaintext aren't and there are more than two lines, contain which lines are same
-        'same_headers': False, # if the headers are same, contains those headers
-        'same_redirect': False, # if both requests redirect in similar manner, contains that redirection
-        'param_missing': False, # if param name is missing from the body, contains words that are already there
-        'value_missing': False # contains whether param value is missing from the body
-    }
-    if type(response_1) == type(response_2) == requests.models.Response:
-        body_1, body_2 = response_1.text, response_2.text
-        if response_1.status_code == response_2.status_code:
-            factors['same_code'] = response_1.status_code
-        if response_1.headers.keys() == response_2.headers.keys():
-            factors['same_headers'] = list(response_1.headers.keys())
-            factors['same_headers'].sort()
-        if mem.var['disable_redirects']:
-            if response_1.headers.get('Location', '') == response_2.headers.get('Location', ''):
-                factors['same_redirect'] = urlparse(response_1.headers.get('Location', '')).path
-        elif urlparse(response_1.url).path == urlparse(response_2.url).path:
-            factors['same_redirect'] = urlparse(response_1.url).path
-        else:
-            factors['same_redirect'] = ''
-        if response_1.text == response_2.text:
-            factors['same_body'] = response_1.text
-        elif response_1.text.count('\n') == response_2.text.count('\n'):
-            factors['lines_num'] = response_1.text.count('\n')
-        elif remove_tags(body_1) == remove_tags(body_2):
-            factors['same_plaintext'] = remove_tags(body_1)
-        elif body_1 and body_2 and body_1.count('\\n') == body_2.count('\\n'):
-                factors['lines_diff'] = diff_map(body_1, body_2)
-        if param not in response_2.text:
-            factors['param_missing'] = [word for word in wordlist if word in response_2.text]
-        if value not in response_2.text:
-            factors['value_missing'] = True
-    return factors
+    scripts = []
+    for part in re.split('(?i)<script[> ]', response):
+        actual_parts = re.split('(?i)</script>', part, maxsplit=2)
+        if len(actual_parts) > 1:
+            scripts.append(actual_parts[0])
+    return scripts
