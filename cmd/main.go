@@ -1,14 +1,17 @@
 package main
 
 import (
-	"github.com/heckintosh/fparam/pkg/utils"
-	"github.com/heckintosh/fparam/pkg/requester"
 	"fmt"
 	"strings"
+
+	"github.com/heckintosh/fparam/pkg/anomaly"
+	"github.com/heckintosh/fparam/pkg/plugins"
+	"github.com/heckintosh/fparam/pkg/requester"
+	"github.com/heckintosh/fparam/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
 
-func main(){
+func main() {
 	var urls []string
 	var params []string
 	var method string
@@ -19,16 +22,15 @@ func main(){
 	//	final_result[url]["method"] = method
 	//	final_result[url]["headers"] =
 	//}
-	
 
 	//urls := []string{"http://example.com"}
 	//reqs := utils.Prepare_request(urls)
 	fmt.Println(final_result, urls)
 }
 
-func initialize(_request utils.RequestPrep, wordlist []string) string{
+func initialize(_request utils.RequestPrep, wordlist []string) string {
 	url := _request.Url
-	if !strings.HasPrefix(url, "http"){
+	if !strings.HasPrefix(url, "http") {
 		log.Error("%s is not a valid url", url)
 		return "skipped"
 	}
@@ -38,17 +40,29 @@ func initialize(_request utils.RequestPrep, wordlist []string) string{
 	} else {
 		fuzz := utils.Random_str(6)
 		fuzz_rev := utils.Reverse(fuzz)
-		fuzz_map := map[string]string{fuzz : fuzz_rev}
+		fuzz_map := map[string]string{fuzz: fuzz_rev}
 		resp1, err1 := requester.Requester(_request, fuzz_map) //First try
 
 		fuzz = utils.Random_str(6)
 		fuzz_rev = utils.Reverse(fuzz)
-		fuzz_map = map[string]string{fuzz : fuzz_rev}
-		resp2, err2 := requester.Requester(_request, fuzz_map) 			// Second try
+		fuzz_map = map[string]string{fuzz: fuzz_rev}
+		resp2, err2 := requester.Requester(_request, fuzz_map) // Second try
 
-		if err1 != nil || err2 != nil{
+		if err1 != nil || err2 != nil {
 			return "skipped"
 		}
-		factors := 
+		factors := anomaly.Define(resp1, resp2, fuzz, fuzz_rev, wordlist)
+		found := plugins.Heuristic(utils.GetRespBodyStr(resp1), wordlist)
+		// if found :=// Đợi kiên xong
+		// Đợi kiên xong
+
+		last_params := []string{}
+		//for true{
+		//	param_groups = 
+		//}
 	}
+}
+
+func narrower(_request utils.RequestPrep, _factors anomaly.Factors, param_groups){
+	
 }
