@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+	"math"
 	"math/rand"
 	"net"
 	"net/http"
@@ -132,7 +134,7 @@ func IsEqual(a1 []string, a2 []string) bool {
 
 func Extract_headers(headers string) map[string]string {
 	tmp := strings.ReplaceAll(headers, "\\n", "\n")
-	return parse_headers(tmp)
+	return Parse_headers(tmp)
 }
 
 func Parse_headers(header string) map[string]string {
@@ -168,6 +170,7 @@ func Diff_map(body_1 string, body_2 string) []string {
 		}
 	}
 	return sig
+}
 
 func ExtractJs(resp_str string) []string {
 	r1 := regexp.MustCompile(regexp.QuoteMeta(`(?i)<script[> ]`))
@@ -182,6 +185,48 @@ func ExtractJs(resp_str string) []string {
 		}
 	}
 	return scripts
+}
+
+func Slicer(dic map[string]string, n int) []Array_Dict{
+	var listed []string
+	var result []Array_Dict
+	//Get all value from Map
+	for i := range dic {
+		listed = append(listed, dic[i])
+	}
+
+	k := len(listed) / n
+	m := len(listed) % n
+	
+	for i := 0; i < n; i++ {
+		index_start := i*k + int(math.Min(float64(i), float64(m)))
+		index_end := (i+1)*k + int(math.Min(float64(i+1), float64(m)))
+		
+		var array_dict Array_Dict
+		slice := listed[index_start:index_end]
+		for i := range slice {
+			// Get key by value
+			key, ok := MapKey(dic, slice[i])
+			if ok {
+				tmp := Dictionary {key:slice[i]}
+				
+				array_dict.Dicts = append(array_dict.Dicts,tmp)
+			}
+		}
+		result = append(result,array_dict)
+	}
+	return result
+}
+
+func MapKey(m map[string]string, value string) (key string, ok bool) {
+	for k, v := range m {
+		if v == value {
+			key = k
+			ok = true
+			return
+		}
+	}
+	return
 }
 
 func Contains(str string, list []string) bool {
@@ -214,3 +259,27 @@ func GetWordList(filepath string) []string {
 	}
 	return words
 }
+
+func Confirm(array_dict []Dictionary, usable []Dictionary) []Dictionary{
+	params_groups := [] Dictionary{}
+	for i := range array_dict{
+		if(len(array_dict[i]) == 1){
+			usable = append(usable, array_dict[i])
+		} else{
+			params_groups = append(params_groups,array_dict[i])
+		}
+	}
+	return params_groups
+}
+
+
+
+
+
+
+type Array_Dict struct{
+	Dicts []Dictionary
+}
+
+
+type Dictionary map[string]interface{}
