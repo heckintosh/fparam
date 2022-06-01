@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/heckintosh/fparam/pkg/anomaly"
+	"github.com/heckintosh/fparam/pkg/bruter"
 	"github.com/heckintosh/fparam/pkg/plugins"
 	"github.com/heckintosh/fparam/pkg/requester"
 	"github.com/heckintosh/fparam/pkg/utils"
@@ -27,6 +28,16 @@ func main() {
 	//reqs := utils.Prepare_request(urls)
 	fmt.Println(final_result, urls)
 }
+
+type Dictionary map[string]interface{}
+
+func narrower(_request utils.RequestPrep, factors anomaly.Factors, param_groups []Dictionary){
+	anomalous_params := []string{}
+	for _, param range := range param_groups{
+		go bruter.Bruter(_request, factors, param_groups)
+	}
+}
+
 
 func initialize(_request utils.RequestPrep, wordlist []string) string {
 	url := _request.Url
@@ -53,16 +64,16 @@ func initialize(_request utils.RequestPrep, wordlist []string) string {
 		}
 		factors := anomaly.Define(resp1, resp2, fuzz, fuzz_rev, wordlist)
 		found := plugins.Heuristic(utils.GetRespBodyStr(resp1), wordlist)
-		// if found :=// Đợi kiên xong
-		// Đợi kiên xong
+
+		populated := utils.Populate(wordlist)
 
 		last_params := []string{}
-		//for true{
-		//	param_groups = 
-		//}
+		for true{
+
+		}
+		for _, param := range last_params{
+			reason := 
+		}
 	}
 }
 
-func narrower(_request utils.RequestPrep, _factors anomaly.Factors, param_groups){
-	
-}

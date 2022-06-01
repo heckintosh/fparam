@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"bufio"
+	"io"
 	"math/rand"
 	"net"
 	"net/http"
@@ -41,14 +43,18 @@ func Stable_request(_url string, header http.Header) string {
 		req, err := http.NewRequest("GET", scheme+"://"+u.Host+u.Path, nil)
 		req.Header = header
 		if err != nil {
-			log.Error("Stable request failed: %v", err)
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Stable requests failed.")
 		} else {
 			resp, err2 = client.Do(req)
 		}
 		if err2 != nil {
 			var tmp interface{} = err2
 			if _, ok := tmp.(net.Error); ok {
-				log.Error("Connection error %v:, err")
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Error("Connection failed.")
 			} else {
 				continue // If not connection error then continue looping in schemes
 			}
@@ -132,7 +138,7 @@ func IsEqual(a1 []string, a2 []string) bool {
 
 func Extract_headers(headers string) map[string]string {
 	tmp := strings.ReplaceAll(headers, "\\n", "\n")
-	return parse_headers(tmp)
+	return Parse_headers(tmp)
 }
 
 func Parse_headers(header string) map[string]string {
@@ -168,6 +174,7 @@ func Diff_map(body_1 string, body_2 string) []string {
 		}
 	}
 	return sig
+}
 
 func ExtractJs(resp_str string) []string {
 	r1 := regexp.MustCompile(regexp.QuoteMeta(`(?i)<script[> ]`))
@@ -194,10 +201,9 @@ func Contains(str string, list []string) bool {
 }
 
 func GetRespBodyStr(resp *http.Response) string {
-	body := resp.Body
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(body)
-	return buf.String()
+	b, _ := io.ReadAll(resp.Body)
+	tmp := string(b)
+	return tmp
 }
 
 func GetWordList(filepath string) []string {
