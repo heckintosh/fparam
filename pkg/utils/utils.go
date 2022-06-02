@@ -2,7 +2,7 @@ package utils
 
 import (
 	"bufio"
-	"io"
+	// "io"
 	"math"
 	"math/rand"
 	"net"
@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+	"bytes"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -224,35 +224,32 @@ func GetWordList(filepath string) []string {
 	return words
 }
 
-func Slicer(dic map[string]string, n int) []Array_Dict {
-	var listed []string
-	var result []Array_Dict
-	//Get all value from Map
-	for i := range dic {
-		listed = append(listed, dic[i])
+func Slicer(dic map[string]string, n int)  []map[string]string{
+	
+	DictionarySlice := make([]map[string]string,0)
+	var inp_key_slice []string
+	var inp_val_slice []string
+	//Get all value and key from Map
+	for k, v := range dic {
+		inp_key_slice = append(inp_key_slice, v)
+		inp_val_slice = append(inp_val_slice, k)
 	}
 
-	k := len(listed) / n
-	m := len(listed) % n
+	k := len(inp_val_slice) / n
+	m := len(inp_val_slice) % n
 
 	for i := 0; i < n; i++ {
 		index_start := i*k + int(math.Min(float64(i), float64(m)))
 		index_end := (i+1)*k + int(math.Min(float64(i+1), float64(m)))
 
-		var array_dict Array_Dict
-		slice := listed[index_start:index_end]
-		for i := range slice {
-			// Get key by value
-			key, ok := MapKey(dic, slice[i])
-			if ok {
-				tmp := Dictionary{key: slice[i]}
-
-				array_dict.Dicts = append(array_dict.Dicts, tmp)
-			}
+		tmp :=make(map[string]string)
+		
+		for j := index_start; j < index_end; j++ {
+			tmp[inp_key_slice[j]] = inp_val_slice[j]
 		}
-		result = append(result, array_dict)
+		DictionarySlice = append(DictionarySlice,tmp)
 	}
-	return result
+	return DictionarySlice
 }
 
 func MapKey(m map[string]string, value string) (key string, ok bool) {
@@ -266,35 +263,7 @@ func MapKey(m map[string]string, value string) (key string, ok bool) {
 	return
 }
 
-func Contains(str string, list []string) bool {
-	for _, s := range list {
-		if str == s {
-			return true
-		}
-	}
-	return false
-}
 
-func GetRespBodyStr(resp *http.Response) string {
-	b, _ := io.ReadAll(resp.Body)
-	tmp := string(b)
-	return tmp
-}
-
-func GetWordList(filepath string) []string {
-	file, err := os.Open(filepath)
-	var words []string
-	if err != nil {
-		log.Fatal(err)
-	}
-	Scanner := bufio.NewScanner(file)
-	Scanner.Split(bufio.ScanWords)
-
-	for Scanner.Scan() {
-		words = append(words, Scanner.Text())
-	}
-	return words
-}
 
 func Confirm(array_dict []Dictionary, usable []Dictionary) []Dictionary {
 	params_groups := []Dictionary{}
