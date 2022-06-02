@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/heckintosh/fparam/pkg/anomaly"
 	"github.com/heckintosh/fparam/pkg/plugins"
 	"github.com/heckintosh/fparam/pkg/requester"
@@ -46,7 +47,7 @@ func Initialize(_request utils.RequestPrep, wordlist []string, chunks int) (stri
 		return "skipped", 0
 	}
 	_request.Url = utils.Stable_request(url, _request.Header)
-	if _request.Url != "" {
+	if _request.Url == "" {
 		return "skipped", 0
 	} else {
 		fuzz := utils.Random_str(6)
@@ -60,15 +61,20 @@ func Initialize(_request utils.RequestPrep, wordlist []string, chunks int) (stri
 		resp2, err2 := requester.Requester(_request, fuzz_map) // Second try
 
 		if err1 != nil || err2 != nil {
+			log.WithFields(log.Fields{
+				"error1": err1,
+				"error2": err2,
+			}).Error("Initializer failed.")
 			return "skipped", 0
 		}
+		body_str := utils.GetRespBodyStr(resp1)
 		factors := anomaly.Define(resp1, resp2, fuzz, fuzz_rev, wordlist)
-		found := plugins.Heuristic(utils.GetRespBodyStr(resp1), wordlist)
-
+		found := plugins.Heuristic(body_str, wordlist)
 		populated := utils.Populate(wordlist)
-		param_groups := utils.Slicer(populated, int(len(wordlist)/chunks))
-		fmt.Println(factors)
-		fmt.Println(found)
-		return "", len(param_groups)
+		//fmt.Println("-------------------------------------------------")
+		//spew.Dump(populated)
+		//param_groups := utils.Slicer(populated, int(len(wordlist)/chunks))
+		//// spew.Dump(param_groups)
+		return "test", 0
 	}
 }
