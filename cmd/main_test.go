@@ -10,7 +10,7 @@ import (
 )
 
 func TestInitalize(t *testing.T) {
-	filepath, _ := filepath.Abs("../internal/db/test.txt")
+	filepath, _ := filepath.Abs("medium.txt")
 	wordlist := utils.GetWordList(filepath)
 	sampleRequest := utils.RequestPrep{
 		Url:    "http://210.245.86.148/csocssrf/Level1/",
@@ -23,7 +23,6 @@ func TestInitalize(t *testing.T) {
 	if len(wordlist) < chunk {
 		chunk = int(len(wordlist) / 2)
 	}
-	test_str, test_int := Initialize(sampleRequest, wordlist, chunk)
+	test_str := Initialize(sampleRequest, wordlist)
 	fmt.Println(test_str)
-	fmt.Println(test_int)
 }

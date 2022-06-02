@@ -3,6 +3,7 @@ package plugins
 import (
 	"regexp"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/heckintosh/fparam/pkg/utils"
 )
 
@@ -48,6 +49,7 @@ func Heuristic(resp_body string, wordlist []string) []string {
 	}
 
 	found := []string{}
+	spew.Dump(found)
 	for _, word := range potential_params {
 		if is_not_junk(word) && !utils.Contains(word, found) {
 			found = append(found, word)

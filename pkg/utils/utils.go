@@ -3,6 +3,8 @@ package utils
 import (
 	"bufio"
 	// "io"
+	"bytes"
+	log "github.com/sirupsen/logrus"
 	"math"
 	"math/rand"
 	"net"
@@ -14,8 +16,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"bytes"
-	log "github.com/sirupsen/logrus"
 )
 
 type RequestPrep struct {
@@ -67,17 +67,16 @@ func Stable_request(_url string, header http.Header) string {
 	return ""
 }
 
-func Prepare_request(urls []string) []RequestPrep {
+func PrepareRequest(urls []string) []RequestPrep {
 	var reqs []RequestPrep
 	header := http.Header{
 		"User-Agent":                {"Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"},
 		"Accept":                    {"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
 		"Accept-Language":           {"en-US,en;q=0.5"},
-		"Accept-Encoding":           {"gzip, deflate"},
 		"Connection":                {"close"},
 		"Upgrade-Insecure-Requests": {"1"},
 	}
-	methods := []string{"GET", "POST", "JSON"}
+	methods := []string{"GET"}
 	for _, method := range methods {
 		for _, url := range urls {
 			req := RequestPrep{
@@ -165,7 +164,6 @@ func Populate(array []string) map[string]string {
 	return result
 }
 
-
 func Diff_map(body_1 string, body_2 string) []string {
 	var sig []string
 	line_1 := strings.Split(body_1, "\n")
@@ -179,8 +177,8 @@ func Diff_map(body_1 string, body_2 string) []string {
 }
 
 func ExtractJs(resp_str string) []string {
-	r1 := regexp.MustCompile(regexp.QuoteMeta(`(?i)<script[> ]`))
-	r2 := regexp.MustCompile(regexp.QuoteMeta(`(?i)</script>`))
+	r1 := regexp.MustCompile("(?i)<script[> ]")
+	r2 := regexp.MustCompile("(?i)</script>")
 	split := r1.Split(resp_str, -1)
 	scripts := []string{}
 	var actual_parts []string
@@ -224,9 +222,9 @@ func GetWordList(filepath string) []string {
 	return words
 }
 
-func Slicer(dic map[string]string, n int)  []map[string]string{
-	
-	DictionarySlice := make([]map[string]string,0)
+func Slicer(dic map[string]string, n int) []map[string]string {
+
+	DictionarySlice := make([]map[string]string, 0)
 	var inp_key_slice []string
 	var inp_val_slice []string
 	//Get all value and key from Map
@@ -242,12 +240,12 @@ func Slicer(dic map[string]string, n int)  []map[string]string{
 		index_start := i*k + int(math.Min(float64(i), float64(m)))
 		index_end := (i+1)*k + int(math.Min(float64(i+1), float64(m)))
 
-		tmp :=make(map[string]string)
-		
+		tmp := make(map[string]string)
+
 		for j := index_start; j < index_end; j++ {
 			tmp[inp_key_slice[j]] = inp_val_slice[j]
 		}
-		DictionarySlice = append(DictionarySlice,tmp)
+		DictionarySlice = append(DictionarySlice, tmp)
 	}
 	return DictionarySlice
 }
@@ -262,8 +260,6 @@ func MapKey(m map[string]string, value string) (key string, ok bool) {
 	}
 	return
 }
-
-
 
 func Confirm(array_dict []Dictionary, usable []Dictionary) []Dictionary {
 	params_groups := []Dictionary{}
