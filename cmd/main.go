@@ -4,7 +4,7 @@ import (
 	// "fmt"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
+	// "github.com/davecgh/go-spew/spew"
 	// "github.com/heckintosh/fparam/pkg/anomaly"
 	"github.com/heckintosh/fparam/pkg/plugins"
 	"github.com/heckintosh/fparam/pkg/requester"
