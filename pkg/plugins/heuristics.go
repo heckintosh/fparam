@@ -1,10 +1,8 @@
 package plugins
 
 import (
-	"regexp"
-
-	"github.com/davecgh/go-spew/spew"
 	"github.com/heckintosh/fparam/pkg/utils"
+	"regexp"
 )
 
 func is_not_junk(param string) bool {
