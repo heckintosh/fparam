@@ -21,11 +21,7 @@ func RunV1(urls []string, filepath string) map[string][]string {
 	for _, request := range requests {
 		url = request.Url
 		params = Initialize(request, wordlist)
-		if len(params) == 0 {
-			log.WithFields(log.Fields{
-				"url": url,
-			}).Error("Either Run failed or no params were found")
-		} else {
+		if len(params) != 0 {
 			final_result[url] = params
 		}
 	}
